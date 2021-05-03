@@ -1,24 +1,57 @@
-# vanilla-model
+# vanilla-element
 
-> Size < 1kb
+拥有完整 TS 提示的 document.createElement 简化函数.
 
-性感的 Model、Alert 组件
+此库源码仅仅是以下几行：
 
-## Install
+```js
+export const Ele = (tag, obj, children) => {
+  const el = document.createElement(tag);
+  if (obj) {
+    Ele.set(el, obj);
+  }
+  if (children && children.length) {
+    el.append(...children);
+  }
+  return el;
+};
 
-```sh
-$ npm install --save vanilla-life
+Ele.set = (target, obj) => {
+  const { style, ...rest } = obj;
+  if (style) {
+    Object.assign(target.style, style);
+  }
+
+  Object.assign(target, rest);
+
+  return target;
+};
 ```
 
-## Use
+## Example:
 
-```ts
-import { VanillaAlert } from "vanilla-model";
+Easy create HTMLElement:
 
-const el = document.createElement("div");
-el.textContent = "hello alert";
+```js
+import Ele from "vanilla-element";
 
-const alertEl = VanillaAlert({ children: [el] });
+// 可以创建类似树形的代码
+const view = Ele("div", { className: "page", style: { fontSize: "3em" } }, [
+  Ele("div", null, [
+    Ele("h1", { textContent: "hello" }),
+    Ele("p", { textContent: "world" }),
+  ]),
+]);
 
-document.body.append(alertEl);
+// 可以设置 Element 属性，其中 style 内容会进行覆盖合并
+Ele.set(view, {
+  id: "the-id",
+  style: {
+    backgroundColor: "#f77",
+  },
+});
+
+document.body.append(view);
 ```
+
+仅此而已

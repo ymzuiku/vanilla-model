@@ -1,6 +1,6 @@
 {
-  "name": "vanilla-model",
-  "version": "0.1.0",
+  "name": "vanilla-element",
+  "version": "0.6.0",
   "main": "es/index.js",
   "types": "lib/index.ts",
   "exports": {
@@ -17,13 +17,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ymzuiku/vanilla-model.git"
+    "url": "git+https://github.com/ymzuiku/vanilla-element.git"
   },
   "bugs": {
-    "url": "git+https://github.com/ymzuiku/vanilla-model.git"
+    "url": "git+https://github.com/ymzuiku/vanilla-element.git"
   },
-  "homepage": "git+https://github.com/ymzuiku/vanilla-model.git",
-  "dependencies": {
-    "template-css": "^1.5.6"
-  }
+  "homepage": "git+https://github.com/ymzuiku/vanilla-element.git"
 }
