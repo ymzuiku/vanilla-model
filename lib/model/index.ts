@@ -80,7 +80,7 @@ export function VanillaModel({
   const moveIn = moveInList[direction] as any;
 
   setTimeout(() => {
-    maskEl.style.background = "var(--black-50, rgba(0,0,0,0.5))";
+    maskEl.style.background = "var(--model-mask, rgba(0,0,0,0.5))";
     Object.assign(contentEl.style, moveIn);
   });
 
