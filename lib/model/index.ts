@@ -1,14 +1,19 @@
 import css from "template-css";
 
+export interface MaskElement extends HTMLElement {
+  close: () => any;
+}
+
 export interface IModel {
+  children?: (HTMLElement | string)[];
   maskClickClose?: boolean;
   animeTime?: number;
   opacity?: number;
   mask?: boolean;
-  getClose?: Function;
   closeTimeout?: number;
   maskColor?: string;
   direction?: "left" | "top" | "right" | "bottom" | "center";
+  style?: Partial<CSSStyleDeclaration>;
 }
 
 const positionList = {
@@ -55,59 +60,48 @@ const moveInList = {
   },
 };
 
-const setStyle = (obj: HTMLElement, sty: any) => {
-  Object.keys(sty).forEach((k) => {
-    (obj as any).style[k] = sty[k];
-  });
-};
-
-export function _Model(
-  {
-    getClose,
-    maskClickClose = false,
-    animeTime = 300,
-    direction = "bottom",
-    opacity = 0.4,
-    mask = true,
-    maskColor = "bg-black",
-    closeTimeout,
-    ...rest
-  }: IModel,
-  ...child: any[]
-) {
+export function VanillaModel({
+  maskClickClose = false,
+  animeTime = 300,
+  direction = "bottom",
+  opacity = 0.4,
+  mask = true,
+  maskColor = "bg-black",
+  closeTimeout,
+  children,
+  ...rest
+}: IModel): MaskElement {
   const pos = positionList[direction];
-  const MaskEl = <div class={["ux-model", pos]}></div>;
-  const Content = <div />;
+
+  const maskEl = (document.createElement("div") as unknown) as MaskElement;
+  maskEl.className = ["ux-model", pos].join(" ");
+  const contentEl = document.createElement("div");
   const moveOut = moveOutList[direction] as any;
   const moveIn = moveInList[direction] as any;
 
   setTimeout(() => {
-    MaskEl.style.background = "var(--black-50)";
-    setStyle(Content, moveIn);
+    maskEl.style.background = "var(--black-50, rgba(0,0,0,0.5))";
+    Object.assign(contentEl.style, moveIn);
   });
 
-  const close = () => {
-    MaskEl.style.background = "var(--black-0)";
+  maskEl.close = () => {
+    maskEl.style.background = "rgba(0,0,0,0)";
 
     if (direction === "center") {
-      setStyle(Content, { ...moveOut, opacity: 0 });
+      Object.assign(contentEl.style, { ...moveOut, opacity: 0 });
     } else {
-      setStyle(Content, { ...moveOut, opacity: 1 });
+      Object.assign(contentEl.style, { ...moveOut, opacity: 1 });
     }
 
     setTimeout(() => {
-      setStyle(MaskEl, { pointerEvents: "none" });
-      setStyle(Content, { pointerEvents: "none" });
+      Object.assign(maskEl.style, { pointerEvents: "none" });
+      Object.assign(contentEl.style, { pointerEvents: "none" });
     }, animeTime / 2);
 
     setTimeout(() => {
-      MaskEl.remove();
+      maskEl.remove();
     }, animeTime);
   };
-
-  if (getClose) {
-    getClose(close);
-  }
 
   if (closeTimeout) {
     setTimeout(close, closeTimeout);
@@ -118,47 +112,40 @@ export function _Model(
     opacity = opacity / oldMaskLen / 2;
   }
 
-  return (
-    <MaskEl
-      mask-plan
-      style={{
-        transition: `all ${animeTime}ms var(--ease)`,
-        width: "100vw",
-        height: "100vh",
-        position: "fixed",
-        top: "0px",
-        left: "0px",
-        background: "var(--black-0)",
-        pointerEvents: mask ? void 0 : "none",
-        zIndex: 1100,
-        overflow: "hidden",
-      }}
-      onclick={() => {
-        if (maskClickClose && mask) {
-          close();
-        }
-      }}
-      {...rest}
-    >
-      <Content
-        style={{
-          transition: `all ${animeTime}ms var(--ease)`,
-          ...moveOut,
-        }}
-        onclick={(e: any) => {
-          e.stopPropagation();
-        }}
-      >
-        {child}
-      </Content>
-    </MaskEl>
-  );
-}
+  maskEl.setAttribute("mask-plan", "1");
+  Object.assign(maskEl.style, {
+    transition: `all ${animeTime}ms var(--ease, ease-out)`,
+    width: "100vw",
+    height: "100vh",
+    position: "fixed",
+    top: "0px",
+    left: "0px",
+    background: "rgba(0,0,0,0)",
+    pointerEvents: mask ? void 0 : "none",
+    zIndex: "1100",
+    overflow: "hidden",
+  } as Partial<CSSStyleDeclaration>);
 
-export function UxModel({ children, ...rest }: IModel) {
-  const ele = _Model(rest, children);
-  // document.body.append(ele);
-  return ele;
+  maskEl.onclick = () => {
+    if (maskClickClose && mask) {
+      close();
+    }
+  };
+
+  Object.assign(maskEl, rest);
+
+  Object.assign(contentEl.style, {
+    transition: `all ${animeTime}ms var(--ease, ease-out)`,
+    ...moveOut,
+  });
+
+  if (children) {
+    contentEl.append(...children);
+  }
+
+  maskEl.append(contentEl);
+
+  return maskEl;
 }
 
 css`
