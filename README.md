@@ -1,5 +1,7 @@
 # vanilla-element
 
+【遗弃】作者已使用另一个库： aoife
+
 拥有完整 TS 提示的 document.createElement 简化函数.
 
 此库源码仅仅是以下几行：
